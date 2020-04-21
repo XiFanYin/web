@@ -3,7 +3,8 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import './plugins/element.js'
-
+import './assets/css/global.css'
+import './assets/font/iconfont.css'
 import http from './service/http'
 Vue.prototype.$http = http
 Vue.config.productionTip = false

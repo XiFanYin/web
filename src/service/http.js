@@ -1,9 +1,11 @@
 import services from './service'
 import axioscopy from 'axios'
-
+import {
+    Message
+} from 'element-ui'
 //做一些全局配置
 let axios = axioscopy.create({
-    // baseURL: "http://192.168.1.136:8088/weixin"
+    baseURL: "http://timemeetyou.com:8889/api/private/v1"
 })
 
 //所有的请求方法封装
@@ -19,21 +21,26 @@ axios.interceptors.request.use(
     // 请求失败
     error => {
         console.log("发起请求失败")
-        return Promise.reject(error)
+        return Promise.reject("发起请求失败，请稍后再试~")
     }
 )
 
 
 //响应拦截器
 axios.interceptors.response.use(
-    // 请求成功
     res => {
-        console.log("响应成功")
-        return res
+        if (res.data.meta.status != 200) {
+            //系统自定义失败
+            return Promise.reject(res.data.meta.msg)
+        } else {
+            // 请求成功
+            return res
+        }
     },
     // 请求失败
     error => {
-        console.log("响应失败")
+        // TODO
+        //http错误,一会看看里边的内容
         return Promise.reject(error.response.data)
     }
 )
@@ -47,7 +54,7 @@ Object.keys(services).forEach(service => {
     //请求格式和参数的统一
     for (let key in service) {
         let api = service[key] //url 和methed
-        http[key] = async function (params, isFormData = false, config = {}) {
+        http[key] = async function (params, isFormData = false, nextCatchHandle = false, config = {}) {
             let newParams = {}
             //如果是FormData，把数据放到FormData对象中去
             if (params && isFormData) {
@@ -65,14 +72,32 @@ Object.keys(services).forEach(service => {
                 try {
                     response = await axios[api.method](api.url, newParams, config)
                 } catch (err) {
-                    return Promise.reject(err)
+                    if (nextCatchHandle) {
+                        return Promise.reject(err)
+                    } else {
+                        //统一ui处理
+                        return Message({
+                            showClose: true,
+                            message: err,
+                            type: 'error'
+                          })
+                    }
                 }
             } else if (api.method === "delete" || api.method === "get") {
                 config.params = newParams
                 try {
                     response = await axios[api.method](api.url, config)
                 } catch (err) {
-                    return Promise.reject(err.data)
+                    if (nextCatchHandle) {
+                        return Promise.reject(err)
+                    } else {
+                        //统一ui处理
+                        return Message({
+                            showClose: true,
+                            message: err,
+                            type: 'error'
+                          })
+                    }
                 }
             }
             return response

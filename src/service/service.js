@@ -1,7 +1,12 @@
 
 //模块一接口
 const service1 = {
-   
+    login: {
+        method: "post",
+        url: "/login"
+    },
+
+  
 
 }
 //模块二接口
