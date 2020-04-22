@@ -6,6 +6,7 @@ import {
 //做一些全局配置
 let axios = axioscopy.create({
     baseURL: "http://timemeetyou.com:8889/api/private/v1"
+
 })
 
 //所有的请求方法封装
@@ -16,6 +17,8 @@ axios.interceptors.request.use(
     // 发起请求前
     config => {
         console.log("开始请求")
+        //添加公共的请求头
+        config.headers.Authorization = window.sessionStorage.getItem('token')
         return config
     },
     // 请求失败
@@ -29,7 +32,7 @@ axios.interceptors.request.use(
 //响应拦截器
 axios.interceptors.response.use(
     res => {
-        if (res.data.meta.status != 200) {
+        if (res.data.meta.status !== 200) {
             //系统自定义失败
             return Promise.reject(res.data.meta.msg)
         } else {
@@ -39,12 +42,10 @@ axios.interceptors.response.use(
     },
     // 请求失败
     error => {
-        // TODO
-        //http错误,一会看看里边的内容
-        return Promise.reject(error.response.data)
+        //http错误，响应码不是200的情况
+        return Promise.reject(error.response.data.message)
     }
 )
-
 
 
 
@@ -54,7 +55,7 @@ Object.keys(services).forEach(service => {
     //请求格式和参数的统一
     for (let key in service) {
         let api = service[key] //url 和methed
-        http[key] = async function (params, isFormData = false, nextCatchHandle = false, config = {}) {
+        http[key] = async function (params, isFormData = false, url = api.url ,config = {}) {
             let newParams = {}
             //如果是FormData，把数据放到FormData对象中去
             if (params && isFormData) {
@@ -70,34 +71,31 @@ Object.keys(services).forEach(service => {
             let response = {} //请求的返回值
             if (api.method === "post" || api.method === "put" || api.method === "patch") {
                 try {
-                    response = await axios[api.method](api.url, newParams, config)
+                    response = await axios[api.method](url, newParams, config)
+                    response = response.data.data
                 } catch (err) {
-                    if (nextCatchHandle) {
-                        return Promise.reject(err)
-                    } else {
-                        //统一ui处理
-                        return Message({
-                            showClose: true,
-                            message: err,
-                            type: 'error'
-                          })
-                    }
+                    //统一ui处理
+                    Message({
+                        showClose: true,
+                        message: err,
+                        type: 'error'
+                    })
+                    return Promise.reject(err)
                 }
             } else if (api.method === "delete" || api.method === "get") {
                 config.params = newParams
                 try {
-                    response = await axios[api.method](api.url, config)
+                    response = await axios[api.method](url, config)
+                    response = response.data.data
                 } catch (err) {
-                    if (nextCatchHandle) {
-                        return Promise.reject(err)
-                    } else {
-                        //统一ui处理
-                        return Message({
-                            showClose: true,
-                            message: err,
-                            type: 'error'
-                          })
-                    }
+                    //统一ui处理
+                    Message({
+                        showClose: true,
+                        message: err,
+                        type: 'error'
+                    })
+                    return Promise.reject(err)
+
                 }
             }
             return response

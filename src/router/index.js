@@ -9,7 +9,21 @@ Vue.use(VueRouter)
 const routes = [{
     path: '/',
     name: 'Home',
-    component: Home
+    component: Home,
+    redirect: "/welcome",
+    children: [{
+      path: '/welcome',
+      name: 'Welcome',
+      component: () => import('../views/Welcome')
+    },
+    {
+      path: '/users',
+      name: 'userslist',
+      component: () => import('../views/UsersList')
+    },
+  
+  
+  ]
   },
   {
     path: '/login',
@@ -24,7 +38,14 @@ const router = new VueRouter({
   routes
 })
 
+router.beforeEach((to, from, next) => {
+  if (sessionStorage.getItem('token') || to.path === "/login") {
+    return next()
+  } else {
+    return next("/login")
+  }
 
+});
 
 
 

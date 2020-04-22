@@ -49,15 +49,18 @@ export default {
       this.$refs[ref].resetFields();
     },
     login(ref) {
-
-      const _this = this
-      this.$refs[ref].validate(function(isok){
-          if(!isok) return
-          _this.$http.login(_this.loginform).then(function(res){
-
-
+   
+      this.$refs[ref].validate(isok => {
+        if (!isok) return;
+        this.$http
+          .login(this.loginform)
+          .then(res => {
+            sessionStorage.setItem("token",res.token)
+            this.$router.push('/')
           })
-
+          .catch(e => {
+         
+          });
       });
     }
   }
