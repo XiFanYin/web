@@ -21,7 +21,9 @@ import {
     Switch,
     Tooltip,
     Pagination,
-    Dialog
+    Dialog,
+    Tabs,
+  TabPane,
 } from 'element-ui'
 
 Vue.use(Button)
@@ -46,4 +48,6 @@ Vue.use(Switch)
 Vue.use(Tooltip)
 Vue.use(Pagination)
 Vue.use(Dialog)
+Vue.use(Tabs)
+Vue.use(TabPane)
 
