@@ -17,8 +17,7 @@
           :unique-opened="true"
           :collapse="isCollapse"
           :collapse-transition="false"
-          :router="true"
-          :default-active="indexActived"
+          :default-active="subPath"
         >
           <el-submenu v-for="item  in menusList" :key="item.id" :index="item.id+''">
             <template slot="title">
@@ -26,7 +25,7 @@
               <span>{{item.authName}}</span>
             </template>
             <el-menu-item
-              @click="saveNavState('/'+subitem.path)"
+              @click="tosubMenu('/'+subitem.path)"
               v-for="subitem in item.children"
               :key="subitem.id"
               :index="'/'+subitem.path"
@@ -55,7 +54,7 @@ export default {
         "145": "iconfont icon-tongji"
       },
       isCollapse: false,
-      indexActived: ""
+      subPath: ""
     };
   },
 
@@ -78,14 +77,15 @@ export default {
       window.sessionStorage.clear();
       this.$router.push("/login");
     },
-    //保存连接激活状态
-    saveNavState(indexActived) {
-      this.indexActived = indexActived;
-      window.sessionStorage.setItem("indexActived", indexActived);
+    //跳转子页面
+    tosubMenu(subPath) {
+      this.subPath = subPath;
+      this.$router.push(subPath);
+      window.sessionStorage.setItem("subPath", subPath);
     }
   },
   mounted() {
-    this.indexActived = window.sessionStorage.getItem("indexActived");
+    this.subPath = window.sessionStorage.getItem("subPath");
     this.getMenuList();
   }
 };
