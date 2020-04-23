@@ -15,7 +15,11 @@ const service1 = {
     },
     putUsersState:{
         method: "put",
-        url:"/users"    
+        url:null   
+    },
+    addUser:{
+        method: "post",
+        url: "/users"
     }
    
 

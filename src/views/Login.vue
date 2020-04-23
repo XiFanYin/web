@@ -15,8 +15,8 @@
         </el-form-item>
 
         <el-form-item class="btns">
-          <el-button type="primary" @click="login('loginform_ref')">登录</el-button>
-          <el-button type="info" @click="resetForm('loginform_ref')">重置</el-button>
+          <el-button type="primary" @click="login">登录</el-button>
+          <el-button type="info" @click="resetForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -44,13 +44,13 @@ export default {
     };
   },
   methods: {
-    resetForm(ref) {
+    resetForm() {
       // 对整个表单进行重置，将所有字段值重置为初始值并移除校验结果
-      this.$refs[ref].resetFields();
+      this.$refs['loginform_ref'].resetFields();
     },
-    login(ref) {
+    login() {
    
-      this.$refs[ref].validate(isok => {
+      this.$refs['loginform_ref'].validate(isok => {
         if (!isok) return;
         this.$http
           .login(this.loginform)

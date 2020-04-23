@@ -18,7 +18,8 @@
           :collapse="isCollapse"
           :collapse-transition="false"
           :router="true"
-          :default-active="indexActived">
+          :default-active="indexActived"
+        >
           <el-submenu v-for="item  in menusList" :key="item.id" :index="item.id+''">
             <template slot="title">
               <i :class="iconobj[item.id+'']"></i>
@@ -74,18 +75,18 @@ export default {
     },
     //退出登录
     logOut() {
-      window.sessionStorage.clear;
+      window.sessionStorage.clear();
       this.$router.push("/login");
     },
     //保存连接激活状态
     saveNavState(indexActived) {
-      this.indexActived  = indexActived;
+      this.indexActived = indexActived;
       window.sessionStorage.setItem("indexActived", indexActived);
     }
   },
-  created() {
-    this.getMenuList();
+  mounted() {
     this.indexActived = window.sessionStorage.getItem("indexActived");
+    this.getMenuList();
   }
 };
 </script>

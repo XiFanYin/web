@@ -32,13 +32,14 @@ axios.interceptors.request.use(
 //响应拦截器
 axios.interceptors.response.use(
     res => {
-        if (res.data.meta.status !== 200) {
-            //系统自定义失败
-            return Promise.reject(res.data.meta.msg)
-        } else {
+        if (res.data.meta.status === 200 || res.data.meta.status === 201) {
             // 请求成功
             return res
+        } else {
+            //系统自定义失败
+            return Promise.reject(res.data.meta.msg)
         }
+
     },
     // 请求失败
     error => {
@@ -55,7 +56,7 @@ Object.keys(services).forEach(service => {
     //请求格式和参数的统一
     for (let key in service) {
         let api = service[key] //url 和methed
-        http[key] = async function (params, isFormData = false, url = api.url ,config = {}) {
+        http[key] = async function (params, isFormData = false, url = api.url, config = {}) {
             let newParams = {}
             //如果是FormData，把数据放到FormData对象中去
             if (params && isFormData) {
