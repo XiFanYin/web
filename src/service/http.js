@@ -5,7 +5,7 @@ import {
 } from 'element-ui'
 //做一些全局配置
 let axios = axioscopy.create({
-    baseURL: "http://timemeetyou.com:8889/api/private/v1"
+    baseURL: "http://192.168.1.136:8088"
 
 })
 
@@ -32,19 +32,24 @@ axios.interceptors.request.use(
 //响应拦截器
 axios.interceptors.response.use(
     res => {
-        if (res.data.meta.status === 200 || res.data.meta.status === 201) {
+        if (res.data.code === 200) {
             // 请求成功
             return res
         } else {
             //系统自定义失败
-            return Promise.reject(res.data.meta.msg)
+            return Promise.reject(res.data.message)
         }
 
     },
     // 请求失败
     error => {
-        //http错误，响应码不是200的情况
-        return Promise.reject(error.response.data.message)
+        //http错误，响应码不是200，或者服务器拒绝访问
+        if(error.response){
+            return Promise.reject(error.response.data.message)
+        }else{
+            return Promise.reject("服务器走丢了，请稍后再试~")
+        }
+      
     }
 )
 
@@ -56,7 +61,7 @@ Object.keys(services).forEach(service => {
     //请求格式和参数的统一
     for (let key in service) {
         let api = service[key] //url 和methed
-        http[key] = async function (params, isFormData = false, url = api.url, config = {}) {
+        http[key] = async function (params, isFormData = false,  config = {}) {
             let newParams = {}
             //如果是FormData，把数据放到FormData对象中去
             if (params && isFormData) {
@@ -72,7 +77,7 @@ Object.keys(services).forEach(service => {
             let response = {} //请求的返回值
             if (api.method === "post" || api.method === "put" || api.method === "patch") {
                 try {
-                    response = await axios[api.method](url, newParams, config)
+                    response = await axios[api.method](api.url, newParams, config)
                     response = response.data.data
                 } catch (err) {
                     //统一ui处理
@@ -86,7 +91,7 @@ Object.keys(services).forEach(service => {
             } else if (api.method === "delete" || api.method === "get") {
                 config.params = newParams
                 try {
-                    response = await axios[api.method](url, config)
+                    response = await axios[api.method](api.url, config)
                     response = response.data.data
                 } catch (err) {
                     //统一ui处理

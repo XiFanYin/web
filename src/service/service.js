@@ -2,12 +2,12 @@
 const service1 = {
     login: {
         method: "post",
-        url: "/login"
+        url: "/admin/auth/loginSubmit"
     },
 
     getMenus: {
         method: "get",
-        url: "/menus"
+        url: "/admin/menu/getMenuList"
     },
     getUsers: {
         method: "get",

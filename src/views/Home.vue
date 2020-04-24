@@ -19,21 +19,29 @@
           :collapse-transition="false"
           :default-active="subPath"
         >
-          <el-submenu v-for="item  in menusList" :key="item.id" :index="item.id+''">
+          <el-submenu v-for="item  in menusList" :key="item.menuId" :index="item.menuId">
             <template slot="title">
-              <i :class="iconobj[item.id+'']"></i>
-              <span>{{item.authName}}</span>
+              <i :class="item.icon"></i>
+              <span>{{item.title}}</span>
             </template>
             <el-menu-item
-              @click="tosubMenu('/'+subitem.path)"
-              v-for="subitem in item.children"
-              :key="subitem.id"
-              :index="'/'+subitem.path"
-            >{{subitem.authName}}</el-menu-item>
+              @click="tosubMenu(subitem.url,subitem.title)"
+              v-for="subitem in item.list"
+              :key="subitem.menuId"
+              :index="subitem.url"
+            >{{subitem.title}}</el-menu-item>
           </el-submenu>
         </el-menu>
       </el-aside>
       <el-main>
+        <el-tabs v-model="subPath" type="card" closable @tab-remove="removeTab">
+          <el-tab-pane
+            v-for="item  in editableTabs"
+            :key="item.name"
+            :label="item.title"
+            :name="item.name"
+          ></el-tab-pane>
+        </el-tabs>
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -45,6 +53,7 @@ export default {
   name: "Home",
   data() {
     return {
+      editableTabs: [],
       menusList: [],
       iconobj: {
         "125": "iconfont icon-Management",
@@ -54,7 +63,7 @@ export default {
         "145": "iconfont icon-tongji"
       },
       isCollapse: false,
-      subPath: ""
+      subPath: "/"
     };
   },
 
@@ -77,16 +86,64 @@ export default {
       window.sessionStorage.clear();
       this.$router.push("/login");
     },
+
     //跳转子页面
-    tosubMenu(subPath) {
+    tosubMenu(subPath, title) {
       this.subPath = subPath;
-      this.$router.push(subPath);
-      window.sessionStorage.setItem("subPath", subPath);
+      let newpath = { name: subPath, title: title };
+      //去除重复
+      if (
+        JSON.stringify(this.editableTabs).indexOf(JSON.stringify(newpath)) == -1
+      ) {
+        this.editableTabs.push(newpath);
+        window.sessionStorage.setItem(
+          "tabs",
+          JSON.stringify(this.editableTabs)
+        );
+      }
+    },
+    removeTab(targetName) {
+      let tabs = this.editableTabs;
+      let activeName = this.subPath;
+      if (activeName === targetName) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetName) {
+            let nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeName = nextTab.name;
+            }
+          }
+        });
+      }
+
+      this.subPath = activeName;
+      this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+      window.sessionStorage.setItem("tabs", JSON.stringify(this.editableTabs));
+      if (this.editableTabs.length == 0) {
+        this.subPath = "/welcome";
+        window.sessionStorage.setItem("currrnttab", "/welcome");
+      }
     }
   },
   mounted() {
-    this.subPath = window.sessionStorage.getItem("subPath");
+    let tabs = JSON.parse(window.sessionStorage.getItem("tabs"));
+    if (tabs != null) {
+      this.editableTabs = tabs;
+    }
     this.getMenuList();
+    if (window.sessionStorage.getItem("currrnttab") != null) {
+      //取出来之前的路由
+      this.subPath = window.sessionStorage.getItem("currrnttab");
+    }
+  },
+
+  watch: {
+    //观察路径改变，进行跳转
+    subPath(newPath) {
+      //存起来当前路由，刷新时候可以直接定位到之前路由
+      this.$router.replace({ path: newPath }).catch(data => {});
+      window.sessionStorage.setItem("currrnttab", newPath);
+    }
   }
 };
 </script>

@@ -53,8 +53,9 @@ export default {
       this.$refs['loginform_ref'].validate(isok => {
         if (!isok) return;
         this.$http
-          .login(this.loginform)
+          .login(this.loginform,true)
           .then(res => {
+            console.log(res)
             sessionStorage.setItem("token",res.token)
             this.$router.push('/')
           })

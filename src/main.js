@@ -2,10 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import http from './service/http'
 import './plugins/element.js'
 import './assets/css/global.css'
 import './assets/font/iconfont.css'
-import http from './service/http'
 Vue.prototype.$http = http
 Vue.config.productionTip = false
 

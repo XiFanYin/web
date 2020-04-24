@@ -17,12 +17,12 @@ const routes = [{
       component: () => import('../views/Welcome')
     },
     {
-      path: '/users',
-      name: 'userslist',
-      component: () => import('../views/UsersList')
+      path: '/admin/menu',
+      name: 'menuManager',
+      component: () => import('../views/MenuManager')
     },
     {
-      path: '/rights',
+      path: '/admin/dept',
       name: 'rights',
       component: () => import('../views/Rights')
     },
@@ -39,7 +39,6 @@ const routes = [{
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
   routes
 })
 
